@@ -1,0 +1,32 @@
+py --version
+- this tells about the current version of Python installed in the laptop
+
+where.exe
+- this command detects where is the python.exe program that you are finding when I type python
+
+C:\Users\abhay\AppData\Local\Microsoft\WindowsApps\python.exe
+- This path is the Windows Microsoft Store alias for python, that's why we can't find where python was installed
+
+py -3.13 -c "import sys; print(sys.executable)"
+- py is Window's Python Launcher. It finds the installed Python version
+- -3.13 tells the launcher use Python 3.13 specifically
+- -c means run this little piece of Python code directly from Terminal
+- import sys loads Python's built-in sys module, which contain information about the Python environment
+- sys.executable contains the exact path to the Python executable currently running
+- print(...) prints that exact path to the terminal
+
+♦ To add python, add it in the environmental variables under User variables for abhay, add:
+C:\Users\abhay\AppData\Local\Programs\Python\Python313
+C:\Users\abhay\AppData\Local\Programs\Python\Python313\Scripts\
+- Then restart vscode
+
+pip --version
+- This checks whether Python's Package Installer is installed and accessible and tells which version you're using
+- Python doesn't include every library we'll need
+- Instead of manually downloading each library, we use pip, e.g. pip install flask
+
+node --version
+- It tells which version of Node.js is installed and being used
+
+npm --version
+- It tells which version of npm (Node Package Manager) is installed

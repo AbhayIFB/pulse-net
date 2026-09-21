@@ -1,0 +1,32 @@
+git status
+- It tells the current state of the project from Git's perspective
+
+git init
+- Initializes the folder as a Git repository
+
+♠ Git doesn't track empty folders
+- The green color indicates from VS code that these are new files that git hasn't started tracking yet
+- U means Untracked
+
+git branch -M main
+git branch - it is the git command for working with branches
+main
+ │
+ ├── development
+ │
+ └── security-feature
+
+ - We'll work with main initially and later we can separate branches for bigger Pulse Net features
+
+ -M - it means rename (force if needed) the current branch
+
+ ♦ Modern github repository generally uses main instead of Master
+
+
+
+ New-Item .gitignore -ItemType File
+ - That creates .gitignore directly in the current Pulse Net directory, regardless of what you have selected in the Explorer
+
+ ♠ .gitignore
+ - This file tells Git don't upload or track these files
+ - These can contain huge dependency folders, generated files, or sensitive credentials.

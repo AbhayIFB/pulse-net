@@ -1,0 +1,1 @@
+A web dashboard that: scans network devices monitors latency shows connected devices alerts suspicious activity visualizes traffic Skills Used Networking Data visualization Backend basics APIs Bonus You can combine: Python Flask React

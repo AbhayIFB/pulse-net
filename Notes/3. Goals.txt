@@ -1,0 +1,54 @@
+Step 1 — Define the MVP
+
+Our first version should answer one simple question:
+
+“What is happening on my network right now?”
+
+The first working version of Pulse Net should be able to:
+
+Discover devices connected to the network
+Display their:
+IP address
+MAC address
+Hostname (when available)
+Status
+Monitor connectivity
+Latency
+Packet loss
+Online/offline status
+Display the information in a React dashboard
+Store historical monitoring data
+Eventually identify unusual/suspicious activity
+
+We're deliberately not starting with the cybersecurity detection system. That's something we'll build on top of a functioning monitoring platform.
+
+
+Architecture
+                 ┌────────────────┐
+                 │      React UI       │
+                 │                     │
+                 │  Devices            │
+                 │  Network Health     │
+                 │  Traffic            │
+                 │  Security Alerts    │
+                 └──────────┬─────┘
+                            │
+                         REST API
+                            │
+                 ┌──────────▼─────┐
+                 │    Flask Backend    │
+                 │                     │
+                 │  API Routes         │
+                 │  Network Manager    │
+                 │  Monitoring Engine  │
+                 │  Security Engine    │
+                 └──────┬───────┬─┘
+                        │       │
+              ┌─────────▼─┐   ┌▼──────────────┐
+              │  Database │   │ Network Tools │
+              │           │   │               │
+              │ Devices   │   │ Ping          │
+              │ Metrics   │   │ ARP           │
+              │ Alerts    │   │ Scanning      │
+              └───────────┘   │ Traffic       │
+                              └───────────────┘
