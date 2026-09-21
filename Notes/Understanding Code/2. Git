@@ -30,3 +30,21 @@ main
  ♠ .gitignore
  - This file tells Git don't upload or track these files
  - These can contain huge dependency folders, generated files, or sensitive credentials.
+
+ 
+ Git Stages
+ Working Directory
+       │
+       │ git add
+       ▼
+Staging Area
+       │
+       │ git commit
+       ▼
+Git History
+       │
+       │ git push
+       ▼
+GitHub
+
+- Git Add doesn't add anything to Github, it just tells I want these particular changes included in my next commit.
