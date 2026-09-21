@@ -16,3 +16,6 @@ yarn-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Personal notes
+Notes/
