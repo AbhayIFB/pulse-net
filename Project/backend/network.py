@@ -4,7 +4,7 @@ import socket
 import psutil
 
 # Import the networking tools we need from Scapy
-from scapy.all import Ether, ARP, srp
+from scapy.all import Ether, ARP, srp, IP, ICMP, sr1
 
 
 
@@ -52,6 +52,37 @@ def get_local_network():
 
 
 
+# Check whether a device is online and measure its network latency
+def check_device(ip):
+
+    # Create an ICMP Echo Request for the target IP address
+    packet = IP(dst=ip) / ICMP()
+
+    # Send the packet and wait up to 1 second for a response
+    response = sr1(
+        packet,
+        timeout=1,
+        verbose=0
+    )
+
+    # If a response was received, the device is online
+    if response:
+
+        # Calculate the round-trip time using the packet timestamps in milliseconds
+        latency = (response.time - packet.sent_time) * 1000
+
+        return {
+            "status": "online",
+            "latency_ms": round(latency, 2)
+        }
+
+    # If no response was received, consider the device offline
+    return {
+        "status": "offline",
+        "latency_ms": None
+    }
+
+
 
 # Discover Devices connected to the local network using ARP
 def discover_devices():
@@ -78,10 +109,15 @@ def discover_devices():
     # Go through every device that responded to our ARP requests
     for sent, received in answered:
 
-        # Store the device's IP address and MAC address
+        # Check whether the device is online and measure its latency
+        status = check_device(received.psrc)
+
+        # Store the device's network information
         device = {
             "ip": received.psrc,
-            "mac": received.hwsrc
+            "mac": received.hwsrc,
+            "status": status["status"],
+            "latency_ms": status["latency_ms"]
         }
 
         # Add the device to our list
