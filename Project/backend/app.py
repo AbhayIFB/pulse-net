@@ -1,8 +1,8 @@
 # Import Flask, which we use to create our web application
 from flask import Flask
 
-# Import the network discovery function from network.py
-from network import discover_devices
+# Import the get_current_devices function from monitoring.py
+from monitoring import get_current_devices
 
 # Create a Flask application instance
 app = Flask(__name__)
@@ -30,8 +30,9 @@ def api_home():
 # Define an API endpoint for discovering devices on the network
 @app.route("/api/devices")
 def get_devices():
-    # Scan the local network and retrieve the discovered devices
-    devices = discover_devices()
+    
+    # Get the current network devices from the monitoring layer
+    devices = get_current_devices()
 
     # Return the discovered devices as JSON
     return {"devices": devices}
