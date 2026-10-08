@@ -14,6 +14,36 @@ device_state = {}
 MAX_MISSED_SCANS = 2
 
 
+
+# Run one complete monitoring cycle
+def run_monitoring_cycle():
+
+    # Discover devices and update their current state
+    devices = get_current_devices()
+
+    # Store anomaly results for devices
+    anomalies = []
+
+    # Analyze each device for latency anomalies
+    for device in devices:
+
+        result = detect_latency_anomaly(device["ip"])
+
+        # Add the device if an anomaly was detected
+        if result and result["anomaly"]:
+            anomalies.append({
+                "ip": device["ip"],
+                **result
+            })
+
+    # Return the results of this monitoring cycle
+    return {
+        "devices": devices,
+        "anomalies": anomalies
+    }
+
+
+
 # Get the current devices on the network
 def get_current_devices():
 
@@ -40,7 +70,8 @@ def get_current_devices():
         if ip not in device_state:
             device_state[ip] = {
                 **device,
-                "missed_scans": 0
+                "missed_scans": 0,
+                "latency_history": []
             }
 
         else:
@@ -49,6 +80,18 @@ def get_current_devices():
 
             # Reset missed scans because we found it again
             device_state[ip]["missed_scans"] = 0
+
+        # Store the latest latency measurement in the device's history
+        if device["latency_ms"] is not None:
+
+            device_state[ip]["latency_history"].append(
+                device["latency_ms"]
+            )
+
+            # Keep only the 10 most recent measurements
+            device_state[ip]["latency_history"] = (
+                device_state[ip]["latency_history"][-10:]
+            )
 
     # Check devices that were NOT found in this scan
     for ip, device in device_state.items():
@@ -88,4 +131,76 @@ def detect_changes():
     return {
         "new_devices": list(new_devices),
         "removed_devices": list(removed_devices)
+    }
+
+
+
+# Calculate latency statistics for a device
+def get_latency_stats(ip):
+
+    # Check whether the device exists
+    if ip not in device_state:
+        return None
+
+    # Get the device's latency history
+    history = device_state[ip]["latency_history"]
+
+    # There is no latency data to analyze
+    if not history:
+        return None
+
+    return {
+        "average_ms": round(sum(history) / len(history), 2),
+        "minimum_ms": round(min(history), 2),
+        "maximum_ms": round(max(history), 2)
+    }
+
+
+
+# Detect whether a device's latest latency is unusually high
+def detect_latency_anomaly(ip):
+
+    # Check whether the device exists
+    if ip not in device_state:
+        return None
+
+    # Get the device's latency history
+    history = device_state[ip]["latency_history"]
+
+    # We need enough previous measurements to establish a baseline
+    if len(history) < 6:
+        return {
+            "anomaly": False,
+            "reason": "Not enough historical data"
+        }
+
+    # The latest measurement is what we want to evaluate
+    current_latency = history[-1]
+
+    # Use the measurements before the current one as the baseline: in this case we are reading atleast 5 measurements
+    baseline_history = history[:-1]
+
+    # Calculate the average historical latency
+    baseline_average = sum(baseline_history) / len(baseline_history)
+
+    # Calculate how much higher the current latency is
+    latency_increase = current_latency - baseline_average
+
+    # Create a boolean to determine whether the current latency is anomalous
+    is_anomaly = (
+        current_latency >= baseline_average * 2
+        and latency_increase >= 10
+    )
+
+    # Create an explanation for the result
+    if is_anomaly:
+        reason = "Latency is significantly above the device baseline"
+    else:
+        reason = "Latency is within the expected range"
+
+    return {
+        "anomaly": is_anomaly,
+        "reason": reason,
+        "current_latency_ms": round(current_latency, 2),
+        "baseline_average_ms": round(baseline_average, 2)
     }
