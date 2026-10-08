@@ -10,6 +10,9 @@ previous_devices = []
 # Store persistent information about devices across scans
 device_state = {}
 
+# Track whether Pulse Net has completed its first monitoring cycle
+has_previous_scan = False
+
 # Number of consecutive missed scans before a device is considered offline
 MAX_MISSED_SCANS = 2
 
@@ -18,11 +21,26 @@ MAX_MISSED_SCANS = 2
 # Run one complete monitoring cycle
 def run_monitoring_cycle():
 
+    # # Allow this function to modify the module-level scan state
+    global has_previous_scan
+
     # Discover devices and update their current state
     devices = get_current_devices()
 
     # Store anomaly results for devices
     anomalies = []
+
+    # Detect changes based on if previous_scan exists or not
+    if not has_previous_scan:
+        changes = {
+            "new_devices": [],
+            "removed_devices": []
+        }
+
+        has_previous_scan = True
+
+    else:
+        changes = detect_changes()
 
     # Analyze each device for latency anomalies
     for device in devices:
@@ -39,6 +57,7 @@ def run_monitoring_cycle():
     # Return the results of this monitoring cycle
     return {
         "devices": devices,
+        "changes": changes,
         "anomalies": anomalies
     }
 
@@ -106,8 +125,8 @@ def get_current_devices():
                 device["status"] = "offline"
                 device["latency_ms"] = None
 
-    # Convert our state dictionary back into a list
-    current_devices = list(device_state.values())
+    # Save the current scan in the current devices
+    current_devices = scanned_devices
 
     return current_devices
 
