@@ -1,8 +1,8 @@
 # Import Flask, which we use to create our web application
 from flask import Flask
 
-# Import the get_current_devices function from monitoring.py
-from monitoring import get_current_devices
+# Import the run_monitoring_cycle and get_known_devices function from monitoring.py
+from monitoring import run_monitoring_cycle, get_known_devices
 
 # Create a Flask application instance
 app = Flask(__name__)
@@ -30,12 +30,22 @@ def api_home():
 # Define an API endpoint for discovering devices on the network
 @app.route("/api/devices")
 def get_devices():
-    
-    # Get the current network devices from the monitoring layer
-    devices = get_current_devices()
 
-    # Return the discovered devices as JSON
+    # Return the latest known device state
+    devices = get_known_devices()
+
     return {"devices": devices}
+
+
+
+# Define an API endpoint for running a monitoring scan on the network
+@app.route("/api/monitoring")
+def get_monitoring():
+    # Run one complete monitoring cycle
+    result = run_monitoring_cycle()
+
+    # Return the monitoring results as JSON
+    return result
 
 
 

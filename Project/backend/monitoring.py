@@ -42,9 +42,17 @@ def run_monitoring_cycle():
     else:
         changes = detect_changes()
 
-    # Analyze each device for latency anomalies
+    # Add latency statistics and Analyze each device for latency anomalies
     for device in devices:
 
+        # Get the device's latency statistics
+        stats = get_latency_stats(device["ip"])
+
+        # Add the statistics to the device
+        if stats:
+            device["latency_stats"] = stats
+
+        # Analyze the device for latency anomalies
         result = detect_latency_anomaly(device["ip"])
 
         # Add the device if an anomaly was detected
@@ -223,3 +231,21 @@ def detect_latency_anomaly(ip):
         "current_latency_ms": round(current_latency, 2),
         "baseline_average_ms": round(baseline_average, 2)
     }
+
+
+
+# Return the latest known state of all devices
+def get_known_devices():
+    
+    devices = []
+
+    for device in device_state.values():
+
+        devices.append({
+            "ip": device["ip"],
+            "mac": device["mac"],
+            "status": device["status"],
+            "latency_ms": device["latency_ms"]
+        })
+
+    return devices
